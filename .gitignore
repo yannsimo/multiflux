@@ -1,0 +1,19 @@
+build/
+build-*/
+# Fichiers générés par Visual Studio
+.vs/
+*.suo
+*.user
+*.cache
+*.log
+*.obj
+*.pdb
+
+# Fichiers de build
+bin/
+obj/
+
+# Autres fichiers temporaires
+*.tmp
+*.log
+

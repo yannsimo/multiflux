@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "http": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5260"
+    },
+    "https": {
+      "commandName": "Project",
+      "commandLineArgs": " \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_5_3_1\\basket_5_3_1_param.json\" \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_5_3_1\\basket_5_3_1_mkt_data.csv\" \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_5_3_1\\basket_5_3_1_output.json\" \n",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7183;http://localhost:5260"
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
+}
