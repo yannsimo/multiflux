@@ -10,7 +10,7 @@
     },
     "https": {
       "commandName": "Project",
-      "commandLineArgs": " \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_5_3_1\\basket_5_3_1_param.json\" \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_5_3_1\\basket_5_3_1_mkt_data.csv\" \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_5_3_1\\basket_5_3_1_output.json\" \n",
+      "commandLineArgs": " \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_8_4_3\\basket_8_4_3_param.json\" \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_8_4_3\\basket_8_4_3_mkt_data.csv\" \"C:\\Users\\PC\\source\\repos\\multiflux\\pcpmf\\TestCases\\Basket_8_4_3\\portfolio_output.json\" \n",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -8,7 +8,7 @@ namespace multiflux
     {
         private readonly GrpcPricer.GrpcPricerClient _client;
 
-        public PricingClient(string serverAddress = "http://ENSIPC551:50051")
+        public PricingClient(string serverAddress = "http://localhost:50051")
         {
             var httpHandler = new HttpClientHandler();
             var channel = GrpcChannel.ForAddress(serverAddress, new GrpcChannelOptions
@@ -20,7 +20,7 @@ namespace multiflux
             _client = new GrpcPricer.GrpcPricerClient(channel);
         }
 
-        public async Task<PricingOutput> GetPriceAndDeltasAsync(double[] past, double time, bool monitoringDateReached)
+        public async Task<PricingOutput> GetPriceAndDeltasAsync(List<List<double>> past, double time, bool monitoringDateReached)
         {
             var pricer = new Pricer(past, time, monitoringDateReached);
             return await GetPriceAndDeltasAsync(pricer);

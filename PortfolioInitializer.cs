@@ -9,24 +9,23 @@ namespace FinancialApplication
 {
     public class PortfolioInitializer
     {
-        
+
 
 
         public PortfolioInitializer()
         {
-            
+
         }
 
-        public async Task<Portfolio> InitializeAsync(DataFeed firstDataFeed, TestParameters testParameters, List<OutputData> outputDataList)
+        public async Task<Portfolio> InitializeAsync(DataFeed firstDataFeed, TestParameters testParameters, List<OutputData> outputDataList, List<List<double>> spots)
         {
-            var client = new PricingClient();
 
             // Obtenir le résultat de la première journée
-            Task<PricingOutput> resultTask = PriceFirstDay(testParameters);
+            Task<PricingOutput> resultTask = PriceFirstDay(testParameters, spots);
             PricingOutput result = await resultTask;
 
             // Créer le portefeuille
-            Portfolio portfolio = await CreatePortfolioAsync(testParameters, firstDataFeed, resultTask);
+            Portfolio portfolio = await CreatePortfolioAsync(testParameters, firstDataFeed, resultTask, spots);
 
             // Générer les données de sortie
             OutputData output = await OutputDataService.CreateOutputDataAsync(portfolio.LastRebalancingDate, resultTask, portfolio);
@@ -38,20 +37,25 @@ namespace FinancialApplication
         }
 
 
-        private async Task<PricingOutput> PriceFirstDay(TestParameters testParameters)
+        private async Task<PricingOutput> PriceFirstDay(TestParameters testParameters, List<List<double>> spots)
         {
             var initialValues = testParameters.PricingParams.InitialSpots;
-            Pricer pricer = new Pricer(initialValues, 0.0, false);
+            spots.Add(initialValues.ToList());
+
+            Pricer pricer = new Pricer(spots, 0.0, false);
             PricingOutput result = await pricer.GetPricingOutputAsync();
+
+            spots.RemoveAt(spots.Count - 1);
 
             return result;
         }
 
-       
-        private async Task<Portfolio> CreatePortfolioAsync(TestParameters testParameters, DataFeed firstDataFeed, Task<PricingOutput> pricingResultTask)
+
+        private async Task<Portfolio> CreatePortfolioAsync(TestParameters testParameters, DataFeed firstDataFeed, Task<PricingOutput> pricingResultTask, List<List<double>> spots)
         {
             // Attendre que la tâche pricingResultTask se complète
             var results = await pricingResultTask;
+
 
             // Vérifier si le résultat est valide
             if (results == null)
@@ -66,11 +70,12 @@ namespace FinancialApplication
             foreach (var key in testParameters.PricingParams.UnderlyingPositions.Keys)
             {
                 double delta = results.Deltas[testParameters.PricingParams.UnderlyingPositions[key]];
+
                 initialPositions.Add(key, delta);
             }
 
             // Créer et retourner le portfolio avec les positions initiales et le premier DataFeed
-            return new Portfolio(initialPositions, firstDataFeed, results.Price);
+            return new Portfolio(initialPositions, firstDataFeed, results.Price, spots);
         }
 
 

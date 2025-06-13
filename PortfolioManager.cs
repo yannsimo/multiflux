@@ -2,20 +2,23 @@
 using MarketData;
 using multiflux.Services;
 using ParameterInfo;
+using System.Collections.Generic;
 
 public class PortfolioManager
 {
-    
-    private readonly int RebalancingPeriod;
-     
+
+
+
     private readonly PortfolioInitializer Initializer;
     private readonly PortfolioProcessor Processor;
-    
-    public PortfolioManager(int rebalancingPeriod)
+    private List<List<double>> spots;
+
+    public PortfolioManager()
     {
-        RebalancingPeriod = rebalancingPeriod;
+
         Initializer = new PortfolioInitializer();
-        Processor = new PortfolioProcessor(RebalancingPeriod);
+        Processor = new PortfolioProcessor();
+        spots = new List<List<double>>();
     }
 
     public async Task<Portfolio> InitializeFirstDay(List<DataFeed> shareValueFeeds, List<OutputData> outputDataList, TestParameters testParameters)
@@ -26,12 +29,12 @@ public class PortfolioManager
         }
 
         var initializer = new PortfolioInitializer();
-        Portfolio Portfolio = await initializer.InitializeAsync(shareValueFeeds.First(), testParameters, outputDataList);
+        Portfolio Portfolio = await initializer.InitializeAsync(shareValueFeeds.First(), testParameters, outputDataList, spots);
 
         return Portfolio;
     }
     public void ProcessDay(DataFeed currentDataFeed, List<OutputData> outputDataList, TestParameters testParameters, Portfolio Portfolio)
     {
-        Processor.Process(Portfolio, currentDataFeed, outputDataList, testParameters);
+        Processor.Process(Portfolio, currentDataFeed, outputDataList, testParameters, spots);
     }
 }

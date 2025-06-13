@@ -5,14 +5,14 @@ namespace multiflux.Services
 {
     public class Pricer
     {
-        private readonly double[] _past;
+        private readonly List<List<double>> _spots;
         private readonly double _time;
         private readonly bool _monitoringDateReached;
         private readonly GrpcPricer.GrpcPricerClient _client;
 
-        public Pricer(double[] past, double time, bool monitoringDateReached)
+        public Pricer(List<List<double>> spots, double time, bool monitoringDateReached)
         {
-            _past = past;
+            _spots = spots;
             _time = time;
             _monitoringDateReached = monitoringDateReached;
 
@@ -26,10 +26,9 @@ namespace multiflux.Services
             _client = new GrpcPricer.GrpcPricerClient(channel);
         }
 
-        public double[] Past => _past;
+
         public double Time => _time;
         public bool MonitoringDateReached => _monitoringDateReached;
-
         public PricingInput ToPricingInput()
         {
             var request = new PricingInput
@@ -38,12 +37,20 @@ namespace multiflux.Services
                 MonitoringDateReached = _monitoringDateReached
             };
 
-            var pastLine = new PastLines();
-            for (int i = 0; i < _past.Length; i++)
+
+
+            foreach (var spotLine in _spots)
             {
-                pastLine.Value.Add(_past[i]);
+                var pastLine = new PastLines();
+                pastLine.Value.AddRange(spotLine);
+                request.Past.Add(pastLine);
+
+
             }
-            request.Past.Add(pastLine);
+
+
+
+
             return request;
         }
 

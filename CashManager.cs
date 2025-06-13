@@ -1,26 +1,32 @@
-﻿using MarketData;
+﻿using GrpcPricing.Protos;
+using MarketData;
 
 namespace FinancialApplication
 {
     public class CashManager
     {
         private double Cash;
-        
+        private readonly double Price_Option;
 
 
-        public CashManager(double initialCash)
+        public CashManager(double Price_Option_0, double initialCash)
         {
+
+            Price_Option = Price_Option_0;
             Cash = initialCash;
+
         }
-        
+
         public double GetCash() => Cash;
 
-        public void UpdateCash(double riskFreeRate, double portfolioValue, DataFeed shareValues, PositionManager PositionManager)
+        public async void UpdateCash(double riskFreeRate, DataFeed shareValues, Task<PricingOutput> pricingResultTask, PositionManager PositionManager)
         {
+            PricingOutput Results = await pricingResultTask;
             double portfolioStockValue = PositionManager.CalculateStockValue(shareValues);
-            Cash = (portfolioValue - portfolioStockValue)*riskFreeRate;
+
+            Cash = (Results.Price - portfolioStockValue) * riskFreeRate;
         }
-       
+
     }
 
 }

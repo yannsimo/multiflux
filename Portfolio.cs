@@ -1,5 +1,7 @@
 using FinancialApplication;
+using GrpcPricing.Protos;
 using MarketData;
+using ParameterInfo;
 
 public class Portfolio
 {
@@ -8,7 +10,7 @@ public class Portfolio
     private double portfolioValue;
     private DateTime lastRebalancingDate;
     private DataFeed shareValues;
-
+    List<List<double>> _spots;
     public PositionManager PositionManager
     {
         get { return positionManager; }
@@ -39,7 +41,7 @@ public class Portfolio
         set { shareValues = value; }
     }
 
-    public Portfolio(Dictionary<string, double> positions, DataFeed shareValues, double portfolioValue)
+    public Portfolio(Dictionary<string, double> positions, DataFeed shareValues, double portfolioValue, List<List<double>> spots)
     {
         PositionManager = new PositionManager(positions);
         ShareValues = shareValues;
@@ -47,13 +49,15 @@ public class Portfolio
         LastRebalancingDate = shareValues.Date;
         double initialStockValue = PositionManager.CalculateStockValue(shareValues);
         double initialCash = portfolioValue - initialStockValue;
-        CashManager = new CashManager(initialCash);
+
+        CashManager = new CashManager(portfolioValue, initialCash);
+        _spots = spots;
     }
 
     public double GetPortfolioValue()
     {
-        double stockValue = PositionManager.CalculateStockValue(ShareValues);
-        return stockValue + CashManager.GetCash();
+
+        return PortfolioValue;
     }
 
     public void SetPortfolioValue(double value)
@@ -61,17 +65,29 @@ public class Portfolio
         PortfolioValue = value;
     }
 
-    public void UpdateValue(DataFeed currentDataFeed, double riskFreeRate)
+    public void UpdateValue(DataFeed currentDataFeed, double riskFreeRate, List<List<double>> spots, TestParameters tes, Task<PricingOutput> pricingResultTask)
     {
-        CashManager.UpdateCash(riskFreeRate, PortfolioValue, currentDataFeed, PositionManager);
-        PositionManager.UpdateDeltas(currentDataFeed, CalculateDelta);
-        LastRebalancingDate = currentDataFeed.Date;
-        SetPortfolioValue(GetPortfolioValue());
+        if (IsRebalancingDay(currentDataFeed.Date, LastRebalancingDate, tes.RebalancingOracleDescription.Period))
+        {
+            PositionManager.UpdateDeltas(pricingResultTask, tes);
+            LastRebalancingDate = currentDataFeed.Date;
+        }
+        CashManager.UpdateCash(riskFreeRate, currentDataFeed, pricingResultTask, PositionManager);
+
+
+        double stockValue = PositionManager.CalculateStockValue(currentDataFeed);
+
+        PortfolioValue = stockValue + CashManager.GetCash();
+        bool isMonitoring = tes.PayoffDescription.PaymentDates.Contains(currentDataFeed.Date);
+        if (!isMonitoring)
+        {
+            spots.RemoveAt(spots.Count - 1);
+        }
+    }
+    private bool IsRebalancingDay(DateTime currentDate, DateTime lastRebalancingDate, int period)
+    {
+        int numberOfDays = (currentDate - lastRebalancingDate).Days;
+        return numberOfDays % period == 0;
     }
 
-    private double CalculateDelta(DataFeed currentDataFeed)
-    {
-        // Placeholder pour le calcul du delta. Implémentez votre logique ici.
-        return 1.0;
-    }
 }

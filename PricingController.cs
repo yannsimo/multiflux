@@ -1,5 +1,6 @@
 ﻿using MarketData;
 using ParameterInfo;
+using System.Collections.Generic;
 
 namespace FinancialApplication
 {
@@ -11,7 +12,7 @@ namespace FinancialApplication
         public PricingController(TestParameters testparameters)
         {
             testParameters = testparameters;
-            PortfolioManager = new PortfolioManager(testparameters.RebalancingOracleDescription.Period);
+            PortfolioManager = new PortfolioManager();
         }
 
         public async Task<List<OutputData>> CalculatePortfolioValuesAsync(List<DataFeed> shareValueFeeds)
@@ -25,12 +26,10 @@ namespace FinancialApplication
             var portfolioTask = PortfolioManager.InitializeFirstDay(shareValueFeeds, outputDataList, testParameters);
             var portfolio = await portfolioTask;  // Utiliser await pour traiter le résultat de la tâche
 
-            for (int m = 0; m < testParameters.PayoffDescription.PaymentDates.Length; m++)
+
+            for (int i = 1; i < shareValueFeeds.Count; i++)
             {
-                for (int i = 1; i < shareValueFeeds.Count && shareValueFeeds[i].Date < testParameters.PayoffDescription.PaymentDates[m]; i++)
-                {
-                    PortfolioManager.ProcessDay(shareValueFeeds[i], outputDataList, testParameters, portfolio);
-                }
+                PortfolioManager.ProcessDay(shareValueFeeds[i], outputDataList, testParameters, portfolio);
             }
 
             return outputDataList;

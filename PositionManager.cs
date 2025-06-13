@@ -1,4 +1,7 @@
-﻿using MarketData;
+﻿using GrpcPricing.Protos;
+using MarketData;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using ParameterInfo;
 
 namespace FinancialApplication
 {
@@ -13,6 +16,7 @@ namespace FinancialApplication
 
         public double CalculateStockValue(DataFeed dataFeed)
         {
+
             double stockValue = 0;
             foreach (var position in Positions)
             {
@@ -30,12 +34,15 @@ namespace FinancialApplication
             }
             return stockValue;
         }
-       
-        public void UpdateDeltas(DataFeed dataFeed, Func<DataFeed, double> calculateDelta)
+
+        public async Task UpdateDeltas(Task<PricingOutput> pricingResultTask, TestParameters tes)
         {
-            foreach (var symbol in Positions.Keys)
+            var results = await pricingResultTask;
+
+            foreach (string symbol in Positions.Keys)
             {
-                Positions[symbol] = calculateDelta(dataFeed);
+                double delta = results.Deltas[tes.PricingParams.UnderlyingPositions[symbol]];
+                Positions[symbol] = delta;
             }
         }
 
