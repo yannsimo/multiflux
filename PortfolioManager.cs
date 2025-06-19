@@ -1,21 +1,15 @@
-﻿using FinancialApplication;
+﻿/*using FinancialApplication;
 using MarketData;
-using multiflux.Services;
 using ParameterInfo;
-using System.Collections.Generic;
 
 public class PortfolioManager
 {
-
-
-
     private readonly PortfolioInitializer Initializer;
     private readonly PortfolioProcessor Processor;
     private List<List<double>> spots;
 
     public PortfolioManager()
     {
-
         Initializer = new PortfolioInitializer();
         Processor = new PortfolioProcessor();
         spots = new List<List<double>>();
@@ -30,11 +24,13 @@ public class PortfolioManager
 
         var initializer = new PortfolioInitializer();
         Portfolio Portfolio = await initializer.InitializeAsync(shareValueFeeds.First(), testParameters, outputDataList, spots);
-
         return Portfolio;
     }
-    public void ProcessDay(DataFeed currentDataFeed, List<OutputData> outputDataList, TestParameters testParameters, Portfolio Portfolio)
+
+    // FIXED: Made this method async to properly handle sequential processing
+    public async Task ProcessDayAsync(DataFeed currentDataFeed, List<OutputData> outputDataList, TestParameters testParameters, Portfolio Portfolio)
     {
-        Processor.Process(Portfolio, currentDataFeed, outputDataList, testParameters, spots);
+        await Processor.ProcessAsync(Portfolio, currentDataFeed, outputDataList, testParameters, spots);
     }
 }
+*/

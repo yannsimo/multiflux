@@ -1,4 +1,4 @@
-﻿using GrpcPricing.Protos;
+﻿/*using GrpcPricing.Protos;
 using MarketData;
 using multiflux;
 using multiflux.Services;
@@ -28,7 +28,7 @@ namespace FinancialApplication
             Portfolio portfolio = await CreatePortfolioAsync(testParameters, firstDataFeed, resultTask, spots);
 
             // Générer les données de sortie
-            OutputData output = await OutputDataService.CreateOutputDataAsync(portfolio.LastRebalancingDate, resultTask, portfolio);
+            OutputData output = await OutputDataService.CreateOutputDataAsync(portfolio.LastRebalancingDate, result, portfolio);
 
             // Ajouter les données de sortie à la liste
             outputDataList.Add(output);
@@ -82,3 +82,4 @@ namespace FinancialApplication
 
     }
 }
+*/

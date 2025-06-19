@@ -35,9 +35,9 @@ namespace FinancialApplication
             return stockValue;
         }
 
-        public async Task UpdateDeltas(Task<PricingOutput> pricingResultTask, TestParameters tes)
+        public async Task UpdateDeltas(PricingOutput pricingResultTask, TestParameters tes)
         {
-            var results = await pricingResultTask;
+            var results =  pricingResultTask;
 
             foreach (string symbol in Positions.Keys)
             {

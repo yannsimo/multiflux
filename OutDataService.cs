@@ -1,4 +1,4 @@
-﻿using GrpcPricing.Protos;
+﻿/*using GrpcPricing.Protos;
 using ParameterInfo;
 using System;
 using System.Threading.Tasks;
@@ -7,10 +7,10 @@ namespace FinancialApplication
 {
     public static class OutputDataService
     {
-        public static async Task<OutputData> CreateOutputDataAsync(DateTime date, Task<PricingOutput> resultsTask, Portfolio portfolio)
+        public static async Task<OutputData> CreateOutputDataAsync(DateTime date, PricingOutput resultsTask, Portfolio portfolio)
         {
             // Attendre le résultat de la tâche
-            var results = await resultsTask;
+            var results = resultsTask;*//**//*
 
             // Vérifier si le résultat est valide
             if (results == null)
@@ -31,3 +31,4 @@ namespace FinancialApplication
         }
     }
 }
+*/

@@ -1,4 +1,4 @@
-using MarketData;
+ï»¿using MarketData;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System;
@@ -8,12 +8,12 @@ using System.IO;
 using System.Linq;
 
 public class CsvService
-{ 
+{
     public List<DataFeed> ReadCsvFile(string filePath)
     {
         try
         {
-      
+
             filePath = filePath.Trim();
 
             if (string.IsNullOrWhiteSpace(filePath))
@@ -43,18 +43,15 @@ public class CsvService
                     shareValues = csvReader.GetRecords<ShareValue>().ToList();
                 }
             }
-             
-            Console.WriteLine($"Fichier CSV lu avec succès. Nombre de ShareValue : {shareValues.Count}");
-             
-            var dataFeeds = MarketDataReader.ReadDataFeeds(shareValues);
 
-            Console.WriteLine($"Nombre de DataFeeds générés : {dataFeeds.Count}");
+
+            var dataFeeds = MarketDataReader.ReadDataFeeds(shareValues);
 
             return dataFeeds;
         }
         catch (UnauthorizedAccessException ex)
         {
-            Console.WriteLine($"Accès non autorisé au fichier : {ex.Message}");
+            Console.WriteLine($"Accï¿½s non autorisï¿½ au fichier : {ex.Message}");
             return new List<DataFeed>();
         }
         catch (IOException ex)

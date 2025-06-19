@@ -1,93 +1,46 @@
-using FinancialApplication;
 using GrpcPricing.Protos;
 using MarketData;
 using ParameterInfo;
 
-public class Portfolio
+namespace FinancialApplication.Models
 {
-    private PositionManager positionManager;
-    private CashManager cashManager;
-    private double portfolioValue;
-    private DateTime lastRebalancingDate;
-    private DataFeed shareValues;
-    List<List<double>> _spots;
-    public PositionManager PositionManager
+    /// <summary>
+    /// Modèle de données pur représentant un portfolio
+    /// Responsabilité : Stocker les données uniquement
+    /// </summary>
+    public class Portfolio
     {
-        get { return positionManager; }
-        set { positionManager = value; }
-    }
+        public Dictionary<string, double> Positions { get; }
+        public double Cash { get; set; }
+        public DateTime LastRebalancingDate { get; set; }
 
-    public CashManager CashManager
-    {
-        get { return cashManager; }
-        set { cashManager = value; }
-    }
-
-    public double PortfolioValue
-    {
-        get { return portfolioValue; }
-        set { portfolioValue = value; }
-    }
-
-    public DateTime LastRebalancingDate
-    {
-        get { return lastRebalancingDate; }
-        set { lastRebalancingDate = value; }
-    }
-
-    public DataFeed ShareValues
-    {
-        get { return shareValues; }
-        set { shareValues = value; }
-    }
-
-    public Portfolio(Dictionary<string, double> positions, DataFeed shareValues, double portfolioValue, List<List<double>> spots)
-    {
-        PositionManager = new PositionManager(positions);
-        ShareValues = shareValues;
-        PortfolioValue = portfolioValue;
-        LastRebalancingDate = shareValues.Date;
-        double initialStockValue = PositionManager.CalculateStockValue(shareValues);
-        double initialCash = portfolioValue - initialStockValue;
-
-        CashManager = new CashManager(portfolioValue, initialCash);
-        _spots = spots;
-    }
-
-    public double GetPortfolioValue()
-    {
-
-        return PortfolioValue;
-    }
-
-    public void SetPortfolioValue(double value)
-    {
-        PortfolioValue = value;
-    }
-
-    public void UpdateValue(DataFeed currentDataFeed, double riskFreeRate, List<List<double>> spots, TestParameters tes, Task<PricingOutput> pricingResultTask)
-    {
-        if (IsRebalancingDay(currentDataFeed.Date, LastRebalancingDate, tes.RebalancingOracleDescription.Period))
+        public Portfolio(Dictionary<string, double> initialPositions, double initialCash, DateTime initialDate)
         {
-            PositionManager.UpdateDeltas(pricingResultTask, tes);
-            LastRebalancingDate = currentDataFeed.Date;
+            Positions = new Dictionary<string, double>(initialPositions);
+            Cash = initialCash;
+            LastRebalancingDate = initialDate;
         }
-        CashManager.UpdateCash(riskFreeRate, currentDataFeed, pricingResultTask, PositionManager);
 
-
-        double stockValue = PositionManager.CalculateStockValue(currentDataFeed);
-
-        PortfolioValue = stockValue + CashManager.GetCash();
-        bool isMonitoring = tes.PayoffDescription.PaymentDates.Contains(currentDataFeed.Date);
-        if (!isMonitoring)
+        public double CalculateTotalValue(DataFeed dataFeed)
         {
-            spots.RemoveAt(spots.Count - 1);
+            double stockValue = Positions.Sum(position =>
+            {
+                if (!dataFeed.SpotList.TryGetValue(position.Key, out double price))
+                    throw new KeyNotFoundException($"Prix pour l'action {position.Key} introuvable.");
+                return position.Value * price;
+            });
+
+            return stockValue + Cash;
+        }
+
+        public double CalculateStockValue(DataFeed dataFeed)
+        {
+            return Positions.Sum(position =>
+            {
+                if (!dataFeed.SpotList.TryGetValue(position.Key, out double price))
+                    throw new KeyNotFoundException($"Prix pour l'action {position.Key} introuvable.");
+                return position.Value * price;
+            });
         }
     }
-    private bool IsRebalancingDay(DateTime currentDate, DateTime lastRebalancingDate, int period)
-    {
-        int numberOfDays = (currentDate - lastRebalancingDate).Days;
-        return numberOfDays % period == 0;
-    }
-
 }

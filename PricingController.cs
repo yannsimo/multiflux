@@ -1,39 +1,25 @@
 ﻿using MarketData;
+using multiflux;
 using ParameterInfo;
-using System.Collections.Generic;
 
-namespace FinancialApplication
+namespace FinancialApplication.Controllers
 {
     public class PricingController
     {
-        private readonly TestParameters testParameters;
-        private readonly PortfolioManager PortfolioManager;
+        private readonly PortfolioService _portfolioService;
+        private readonly TestParameters _testParameters;
 
-        public PricingController(TestParameters testparameters)
+        public PricingController(TestParameters testParameters)
         {
-            testParameters = testparameters;
-            PortfolioManager = new PortfolioManager();
+            _testParameters = testParameters;
+            var riskFreeRateProvider = new RiskFreeRateProvider();
+            var pricingService = new PricingService();
+            _portfolioService = new PortfolioService(pricingService, riskFreeRateProvider);
         }
 
         public async Task<List<OutputData>> CalculatePortfolioValuesAsync(List<DataFeed> shareValueFeeds)
         {
-            if (shareValueFeeds == null || shareValueFeeds.Count == 0)
-            {
-                throw new ArgumentException("shareValueFeeds cannot be null or empty", nameof(shareValueFeeds));
-            }
-
-            var outputDataList = new List<OutputData>();
-            var portfolioTask = PortfolioManager.InitializeFirstDay(shareValueFeeds, outputDataList, testParameters);
-            var portfolio = await portfolioTask;  // Utiliser await pour traiter le résultat de la tâche
-
-
-            for (int i = 1; i < shareValueFeeds.Count; i++)
-            {
-                PortfolioManager.ProcessDay(shareValueFeeds[i], outputDataList, testParameters, portfolio);
-            }
-
-            return outputDataList;
+            return await _portfolioService.ProcessPortfolioAsync(_testParameters, shareValueFeeds);
         }
-
     }
 }

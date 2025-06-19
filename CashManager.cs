@@ -19,9 +19,9 @@ namespace FinancialApplication
 
         public double GetCash() => Cash;
 
-        public async void UpdateCash(double riskFreeRate, DataFeed shareValues, Task<PricingOutput> pricingResultTask, PositionManager PositionManager)
+        public async void UpdateCash(double riskFreeRate, DataFeed shareValues, PricingOutput pricingResultTask, PositionManager PositionManager)
         {
-            PricingOutput Results = await pricingResultTask;
+            PricingOutput Results =  pricingResultTask;
             double portfolioStockValue = PositionManager.CalculateStockValue(shareValues);
 
             Cash = (Results.Price - portfolioStockValue) * riskFreeRate;
